@@ -42,6 +42,10 @@ io.on("connect", (socket) => {
         socket.broadcast.emit("UPDATE-ALL",(data))
     });
 
+    socket.on('CHANGE_VIDEO', function (data) {
+        io.emit("CHANGE-ALL",(data))
+    });
+
 })
 
 //-----------------------Tous les clients
