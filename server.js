@@ -1,11 +1,19 @@
+'use strict';
 
-const express = require("express")
-const app = express()
-const http = require("http");
-const server = http.Server(app)
-const io = require("socket.io")(server, {
+const express = require('express');
+const socketIO = require('socket.io');
+
+const PORT = process.env.PORT || 3000;
+const INDEX = '/index.html';
+
+const server = express()
+  .use((req, res) => res.sendFile(INDEX, { root: __dirname }))
+  .listen(PORT, () => console.log(`Listening on ${PORT}`));
+
+  const io = socketIO(server, {
     cors: {
-      origin: "http://172.24.232.150:8080",
+     // origin: "https://syncroom-app.herokuapp.com",
+      origin: "localhost:8080",
       methods: ["GET", "POST"],
     }
   });
@@ -13,7 +21,15 @@ const io = require("socket.io")(server, {
 //-----------------------Gestion des variables locales
 const sockets =[]
 const rooms = []
+
+
+
 //-----------------------Connexion 1 client
+// io.on('connection', (socket) => {
+//   console.log('Client connected');
+//   socket.on('disconnect', () => console.log('Client disconnected'));
+// });
+
 io.on("connect", (socket) => {
 
     // sockets.push(socket.id)
@@ -22,8 +38,7 @@ io.on("connect", (socket) => {
     //     socket.room = rooms.rand
     // });
 
-    console.log('a user connected');
-    console.log(socket.id);
+    console.log('Client connected', socket.id);
 
     socket.on('SEND_MESSAGE', function (data) {
         sendToAll(data.message)
@@ -46,14 +61,16 @@ io.on("connect", (socket) => {
         io.emit("CHANGE-ALL",(data))
     });
 
+    socket.on('disconnect', () => console.log('Client disconnected', socket.id));
 })
 
 //-----------------------Tous les clients
 function sendToAll(message){
     io.emit("MESSAGE-ALL",(message))
+    console.log('message : ', message)
 }
 
-console.log('server started');
+setInterval(() => io.emit('time', new Date().toTimeString()), 1000);
 
-//----Port d'ecoute
-server.listen(8847)
+
+console.log('server started');
