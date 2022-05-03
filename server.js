@@ -41,7 +41,7 @@ io.on("connect", (socket) => {
     console.log('Client connected', socket.id);
 
     socket.on('SEND_MESSAGE', function (data) {
-        sendToAll(data.message)
+        sendToAll(data)
         /* socket.emit('MESSAGE', {date:"22/03/2022"}) */
     });
 
